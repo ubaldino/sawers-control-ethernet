@@ -9,6 +9,10 @@ from serial.tools import list_ports
 import wx , os , time , serial
 
 
+import re
+
+
+
 class Validate_Numeric( wx.PyValidator ):
 	def __init__( Self ):
 		wx.PyValidator.__init__( Self )
@@ -32,12 +36,13 @@ class Validate_Numeric_Dot( wx.PyValidator ):
 		Self.Bind( wx.EVT_TEXT , Self.On_Text_Change )
 	
 	def Clone( Self ):
-		return Validate_Numeric()
+		return Validate_Numeric_Dot()
 
 	def On_Text_Change( Self , Event ):
+		a = re.compile("^[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}$")
 		TextCtrl = Self.GetWindow()
 		Text = TextCtrl.GetValue()
-		if Text.isdigit() or Text == "":
+		if a.match(Text) or Text == "":
 			TextCtrl.SetBackgroundColour( "White" )
 		else :
 			TextCtrl.SetBackgroundColour( "Red" )
@@ -63,7 +68,7 @@ class Validate_Text( wx.PyValidator ):
 class Main( wx.Frame ):
 	def __init__(self):
 		wx.Frame.__init__( self, None, -1, 'Sawers 1.0', size=( 850 , 600 ) )
-		self.icon = wx.Icon( os.path.join( os.getcwd() , "resources", "sawers.ico" ) , wx.BITMAP_TYPE_ICO )
+		self.icon = wx.Icon( os.path.join( os.getcwd() , "Control","resources", "sawers.ico" ) , wx.BITMAP_TYPE_ICO )
 
 		self.SetIcon( self.icon )
 		self.panel = wx.Panel( self , -1 )
@@ -79,9 +84,12 @@ class Main( wx.Frame ):
 
         #### Text fomularios ######
 		## cambiar de ip
-		self.lbl_ip = wx.StaticText( self.panel , label="IP", pos=( 80 , 40 ) )
-		self.txt_ip = wx.TextCtrl( self.panel , value="ip" , style=wx.TE_CENTRE , pos=( 40 , 60 ) ,  validator=Validate_Numeric() )
-	
+		self.lbl_ip = wx.StaticText( self.panel , label="DIRECCION IP", pos=( 80 , 25 ) )
+		self.txt_ip = wx.TextCtrl( self.panel , value="192.168.1.1" , style=wx.TE_CENTRE , pos=( 30 , 30 ), size=(180,70) ,  validator=Validate_Numeric_Dot() )
+		self.lbl_puerto = wx.StaticText( self.panel , label="PUERTO", pos=( 80 , 95 ) )
+		self.txt_puerto = wx.TextCtrl( self.panel , value="80" , style=wx.TE_CENTRE , pos=( 30 , 100 ), size=(180,70) ,  validator=Validate_Numeric() )
+		#self.txt_ip.setFocus()
+
 		btn_buscar.Bind( wx.EVT_BUTTON , self.buscar_seriales )
 		btn_conectar.Bind( wx.EVT_BUTTON , self.conectar_dispositivo )
 		btn_desconectar.Bind( wx.EVT_BUTTON , self.desconectar_dispositivo )

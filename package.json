@@ -1,0 +1,13 @@
+{
+  "name": "sawers",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "python2 ./Control/main.py"
+  },
+  "dependencies": {
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-shell": "^1.1.1",
+    "load-grunt-tasks": "^1.0.0"
+  }
+}
