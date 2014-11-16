@@ -21,8 +21,10 @@ class Validate_Numeric(wx.PyValidator):
         Text = TextCtrl.GetValue()
         if Text.isdigit():
             TextCtrl.SetBackgroundColour("White")
+            TextCtrl.Refresh()
         else:
             TextCtrl.SetBackgroundColour("Red")
+            TextCtrl.Refresh()
         Event.Skip()
 
 class Validate_Numeric_Port(wx.PyValidator):
@@ -38,8 +40,10 @@ class Validate_Numeric_Port(wx.PyValidator):
         Text = TextCtrl.GetValue()
         if ( Text.isdigit() ) and len(Text) < 5:
             TextCtrl.SetBackgroundColour("White")
+            TextCtrl.Refresh()
         else:
             TextCtrl.SetBackgroundColour("Red")
+            TextCtrl.Refresh()
         Event.Skip()
 
 
@@ -88,8 +92,30 @@ class Validate_Text(wx.PyValidator):
         Text = TextCtrl.GetValue()
         if not Text.isdigit():
             TextCtrl.SetBackgroundColour("White")
+            TextCtrl.Refresh()
         else:
-            TextCtrl.SetBackgroundColour("Pink")
+            TextCtrl.SetBackgroundColour("Red")
+            TextCtrl.Refresh()
+        Event.Skip()
+
+class Validate_Numeric_Outs(wx.PyValidator):
+    def __init__(Self):
+        wx.PyValidator.__init__(Self)
+        Self.Bind(wx.EVT_TEXT, Self.On_Text_Change)
+
+    def Clone(Self):
+        return Validate_Numeric_Outs()
+
+    def On_Text_Change(Self, Event):
+        TextCtrl = Self.GetWindow()
+        Text = TextCtrl.GetValue()
+        a = re.compile("^[\d]{1,3}$")
+        if a.match( Text ) and int(Text) < 181 :
+            TextCtrl.SetBackgroundColour("White")
+            TextCtrl.Refresh()
+        else:
+            TextCtrl.SetBackgroundColour("Red")
+            TextCtrl.Refresh()
         Event.Skip()
 
 
@@ -112,7 +138,8 @@ class Main(wx.Frame):
 		## cambiar de ip
         self.btn_ip = wx.Button(self.panel, label='Ip', pos=( 150, 40 ))
         self.lbl_ip = wx.StaticText(self.panel, label="DIRECCION IP", pos=( 80, 20 ))
-        self.txt_ip = wx.TextCtrl(self.panel, value="192.168.1.1", style=wx.TE_CENTRE, pos=( 30, 40 ), size=(110, 25), validator=Validate_Numeric_Dot())
+        self.txt_ip = wx.TextCtrl(self.panel, value="192.168.1.1", style=wx.TE_CENTRE, pos=( 30, 40 ),
+                                  size=(110, 25), validator=Validate_Numeric_Dot())
 
 
         self.btn_puerto = wx.Button(self.panel, label='Puerto', pos=( 148, 100 ))
@@ -132,33 +159,39 @@ class Main(wx.Frame):
 
         #  outs
         self.lbl_hexs = wx.StaticText(self.panel, label="HEX", pos=( 340, 20 ))
-        self.txt_hex1 = wx.TextCtrl(self.panel, value=str(hex(1)), style=wx.TE_CENTRE, pos=( 310, 40 ), size=(100, 25))
-        self.txt_hex2 = wx.TextCtrl(self.panel, value=str(hex(2)), style=wx.TE_CENTRE, pos=( 310, 70 ), size=(100, 25))
-        self.txt_hex3 = wx.TextCtrl(self.panel, value=str(hex(3)), style=wx.TE_CENTRE, pos=( 310, 100 ), size=(100, 25))
-        self.txt_hex4 = wx.TextCtrl(self.panel, value=str(hex(4)), style=wx.TE_CENTRE, pos=( 310, 130 ), size=(100, 25))
-        self.txt_hex5 = wx.TextCtrl(self.panel, value=str(hex(5)), style=wx.TE_CENTRE, pos=( 310, 160 ), size=(100, 25))
-        self.txt_hex6 = wx.TextCtrl(self.panel, value=str(hex(6)), style=wx.TE_CENTRE, pos=( 310, 190 ), size=(100, 25))
+        self.txt_hex1 = wx.TextCtrl(self.panel, value=str(hex(ord("1"))), style=wx.TE_CENTRE,
+                                    pos=( 310, 40 ), size=(100, 25))
+        self.txt_hex2 = wx.TextCtrl(self.panel, value=str(hex(ord("2"))), style=wx.TE_CENTRE,
+                                    pos=( 310, 70 ), size=(100, 25))
+        self.txt_hex3 = wx.TextCtrl(self.panel, value=str(hex(ord("3"))), style=wx.TE_CENTRE,
+                                    pos=( 310, 100 ), size=(100, 25))
+        self.txt_hex4 = wx.TextCtrl(self.panel, value=str(hex(ord("4"))), style=wx.TE_CENTRE,
+                                    pos=( 310, 130 ), size=(100, 25))
+        self.txt_hex5 = wx.TextCtrl(self.panel, value=str(hex(ord("5"))), style=wx.TE_CENTRE,
+                                    pos=( 310, 160 ), size=(100, 25))
+        self.txt_hex6 = wx.TextCtrl(self.panel, value=str(hex(ord("6"))), style=wx.TE_CENTRE,
+                                    pos=( 310, 190 ), size=(100, 25))
 
         self.lbl_outs = wx.StaticText(self.panel, label="COMANDO", pos=( 425, 20 ))
-        self.txt_out1 = wx.TextCtrl(self.panel, value="80", style=wx.TE_CENTRE, pos=( 430, 40 ), size=(80, 25),
-                                      validator=Validate_Numeric_Port())
-        self.txt_out2 = wx.TextCtrl(self.panel, value="80", style=wx.TE_CENTRE, pos=( 430, 70 ), size=(80, 25),
-                                      validator=Validate_Numeric_Port())
-        self.txt_out3 = wx.TextCtrl(self.panel, value="80", style=wx.TE_CENTRE, pos=( 430, 100 ), size=(80, 25),
-                                      validator=Validate_Numeric_Port())
-        self.txt_out4 = wx.TextCtrl(self.panel, value="80", style=wx.TE_CENTRE, pos=( 430, 130 ), size=(80, 25),
-                                      validator=Validate_Numeric_Port())
-        self.txt_out5 = wx.TextCtrl(self.panel, value="80", style=wx.TE_CENTRE, pos=( 430, 160 ), size=(80, 25),
-                                      validator=Validate_Numeric_Port())
-        self.txt_out6 = wx.TextCtrl(self.panel, value="80", style=wx.TE_CENTRE, pos=( 430, 190 ), size=(80, 25),
-                                      validator=Validate_Numeric_Port())
+        self.txt_out1 = wx.TextCtrl(self.panel, value="1", style=wx.TE_CENTRE, pos=( 430, 40 ), size=(80, 25),
+                                      validator=Validate_Numeric_Outs())
+        self.txt_out2 = wx.TextCtrl(self.panel, value="2", style=wx.TE_CENTRE, pos=( 430, 70 ), size=(80, 25),
+                                      validator=Validate_Numeric_Outs())
+        self.txt_out3 = wx.TextCtrl(self.panel, value="3", style=wx.TE_CENTRE, pos=( 430, 100 ), size=(80, 25),
+                                      validator=Validate_Numeric_Outs())
+        self.txt_out4 = wx.TextCtrl(self.panel, value="4", style=wx.TE_CENTRE, pos=( 430, 130 ), size=(80, 25),
+                                      validator=Validate_Numeric_Outs())
+        self.txt_out5 = wx.TextCtrl(self.panel, value="5", style=wx.TE_CENTRE, pos=( 430, 160 ), size=(80, 25),
+                                      validator=Validate_Numeric_Outs())
+        self.txt_out6 = wx.TextCtrl(self.panel, value="6", style=wx.TE_CENTRE, pos=( 430, 190 ), size=(80, 25),
+                                      validator=Validate_Numeric_Outs())
 
-        self.btn_out1 = wx.Button(self.panel, label='OUT 1', pos=( 520, 40 ))
-        self.btn_out2 = wx.Button(self.panel, label='OUT 2', pos=( 520, 70 ))
-        self.btn_out3 = wx.Button(self.panel, label='OUT 3', pos=( 520, 100 ))
-        self.btn_out4 = wx.Button(self.panel, label='OUT 4', pos=( 520, 130 ))
-        self.btn_out5 = wx.Button(self.panel, label='OUT 5', pos=( 520, 160 ))
-        self.btn_out6 = wx.Button(self.panel, label='OUT 6', pos=( 520, 190 ))
+        self.btn_out1 = wx.Button(self.panel, id=11 , label='OUT 1', pos=( 520, 40 ))
+        self.btn_out2 = wx.Button(self.panel, id=12 , label='OUT 2', pos=( 520, 70 ))
+        self.btn_out3 = wx.Button(self.panel, id=13 , label='OUT 3', pos=( 520, 100 ))
+        self.btn_out4 = wx.Button(self.panel, id=14 , label='OUT 4', pos=( 520, 130 ))
+        self.btn_out5 = wx.Button(self.panel, id=15 , label='OUT 5', pos=( 520, 160 ))
+        self.btn_out6 = wx.Button(self.panel, id=16 , label='OUT 6', pos=( 520, 190 ))
 
         #### End Text fomularios ######
 
@@ -172,6 +205,20 @@ class Main(wx.Frame):
         self.btn_puerto.Bind(wx.EVT_BUTTON, self.evento_puerto )
 
         self.txt_out1.Bind(wx.EVT_TEXT, self.evento_out1_text )
+        self.txt_out2.Bind(wx.EVT_TEXT, self.evento_out2_text )
+        self.txt_out3.Bind(wx.EVT_TEXT, self.evento_out3_text )
+        self.txt_out4.Bind(wx.EVT_TEXT, self.evento_out4_text )
+        self.txt_out5.Bind(wx.EVT_TEXT, self.evento_out5_text )
+        self.txt_out6.Bind(wx.EVT_TEXT, self.evento_out6_text )
+
+        self.btn_out1.Bind( wx.EVT_BUTTON , self.evento_btn_outs )
+        self.btn_out2.Bind( wx.EVT_BUTTON , self.evento_btn_outs )
+        self.btn_out3.Bind( wx.EVT_BUTTON , self.evento_btn_outs )
+        self.btn_out4.Bind( wx.EVT_BUTTON , self.evento_btn_outs )
+        self.btn_out5.Bind( wx.EVT_BUTTON , self.evento_btn_outs )
+        self.btn_out6.Bind( wx.EVT_BUTTON , self.evento_btn_outs )
+
+
         self.select_device.Bind(wx.EVT_COMBOBOX , self.evento_select_device)
         #### End Eventos botones ######
 
@@ -199,7 +246,6 @@ class Main(wx.Frame):
         self.btn_out6.Disable()
         self.btn_verificar.Disable()
         self.select_device.Disable()
-
 
     def serialWatcher(self):
         while True:
@@ -247,91 +293,85 @@ class Main(wx.Frame):
             self.txt_puerto.Disable()
             self.btn_ip.Disable()
             self.btn_puerto.Disable()
-        self.txt_result.SetValue(" PC >> "+str( dispositivo )+" elegido "+"\n"+self.txt_result.GetValue() )
+        self.txt_result.SetValue(" PC >> "+str( dispositivo )+" elegido "+
+                                 "\n"+self.txt_result.GetValue() )
 
     def evento_out1_text(self, evt):
-        hexas = ''
-        for digito in self.txt_out1.GetValue():
-            hexas = hexas + hex(int(digito)+48)
-        self.txt_hex1.SetValue(str(hexas))
-        print hexas
+        if self.txt_out1.GetBackgroundColour() == (255, 255, 255, 255):
+            hexas = ''
+            for digito in self.txt_out1.GetValue():
+                hexas = hexas + hex( ord( digito ) )
+            self.txt_hex1.SetValue( str(hexas) )
 
-    def telf3(self, evt):
-        if len(self.txt_telf3.GetValue()) == 8:
-            datos = self.mensaje_serial(str(self.txt_telf3.GetValue()) + "*c\n", 2)
-            self.txt_result.SetLabel(datos)
+    def evento_out2_text(self, evt):
+        if self.txt_out2.GetBackgroundColour() == (255, 255, 255, 255):
+            hexas = ''
+            for digito in self.txt_out2.GetValue():
+                hexas = hexas + hex( ord( digito ) )
+            self.txt_hex2.SetValue( str(hexas) )
+
+    def evento_out3_text(self, evt):
+        if self.txt_out3.GetBackgroundColour() == (255, 255, 255, 255):
+            hexas = ''
+            for digito in self.txt_out3.GetValue():
+                hexas = hexas + hex( ord( digito ) )
+            self.txt_hex3.SetValue( str(hexas) )
+
+    def evento_out4_text(self, evt):
+        if self.txt_out4.GetBackgroundColour() == (255, 255, 255, 255):
+            hexas = ''
+            for digito in self.txt_out4.GetValue():
+                hexas = hexas + hex( ord( digito ) )
+            self.txt_hex4.SetValue( str(hexas) )
+
+    def evento_out5_text(self, evt):
+        if self.txt_out5.GetBackgroundColour() == (255, 255, 255, 255):
+            hexas = ''
+            for digito in self.txt_out5.GetValue():
+                hexas = hexas + hex( ord( digito ) )
+            self.txt_hex5.SetValue( str(hexas) )
+
+    def evento_out6_text(self, evt):
+        if self.txt_out6.GetBackgroundColour() == (255, 255, 255, 255):
+            hexas = ''
+            for digito in self.txt_out6.GetValue():
+                hexas = hexas + hex( ord( digito ) )
+            self.txt_hex6.SetValue( str(hexas) )
+
+
+    def evento_btn_outs(self, evt ):
+        color = (255, 255, 255, 255) ; trama = chr(2)
+        if evt.GetId() == 11 and self.txt_out1.GetBackgroundColour() == color:
+            trama = trama+chr(97)
+            for dato in self.txt_out1.GetValue(): trama = trama + chr( ord(dato) )
+            self.mensaje_serial( trama+chr(3) )
+        elif evt.GetId() == 12 and self.txt_out2.GetBackgroundColour() == color:
+            trama = trama+chr(98)
+            for dato in self.txt_out2.GetValue(): trama = trama + chr( ord(dato) )
+            self.mensaje_serial( trama+chr(3) )
+        elif evt.GetId() == 13 and self.txt_out3.GetBackgroundColour() == color:
+            trama = trama+chr(99)
+            for dato in self.txt_out3.GetValue(): trama = trama + chr( ord(dato) )
+            self.mensaje_serial( trama+chr(3) )
+        elif evt.GetId() == 14 and self.txt_out4.GetBackgroundColour() == color:
+            trama = trama+chr(100)
+            for dato in self.txt_out4.GetValue(): trama = trama + chr( ord(dato) )
+            self.mensaje_serial( trama+chr(3) )
+        elif evt.GetId() == 15 and self.txt_out5.GetBackgroundColour() == color:
+            trama = trama+chr(101)
+            for dato in self.txt_out5.GetValue(): trama = trama + chr( ord(dato) )
+            self.mensaje_serial( trama+chr(3) )
+        elif evt.GetId() == 16 and self.txt_out6.GetBackgroundColour() == color:
+            trama = trama+chr(102)
+            for dato in self.txt_out6.GetValue(): trama = trama + chr( ord(dato) )
+            self.mensaje_serial( trama+chr(3) )
         else:
-            self.txt_result.SetLabel("Fallo en telefono 3")
-
-    # funciones de activacion
-    def actv1(self, evt):
-        if len(self.txt_actv1.GetValue()) > 0:
-            datos = self.mensaje_serial(str(self.txt_actv1.GetValue()) + "*e\n", 2.5)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en activacion 1")
-
-    def actv2(self, evt):
-        if len(self.txt_actv2.GetValue()) > 0:
-            datos = self.mensaje_serial(str(self.txt_actv2.GetValue()) + "*f\n", 2.5)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en activacion 2")
-
-    def actv3(self, evt):
-        if len(self.txt_actv3.GetValue()) > 0:
-            datos = self.mensaje_serial(str(self.txt_actv3.GetValue()) + "*g\n", 2.5)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en activacion 3")
-
-    #funciones de entrada
-
-    def ent1(self, evt):
-        if len(self.txt_disp_ent1.GetValue()) > 0:
-            self.txt_result.SetLabel(str(self.txt_disp_ent1.GetValue()) + "*h\n")
-            datos = self.mensaje_serial(str(self.txt_disp_ent1.GetValue()) + "*h\n", 3)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en entrada 1")
-
-    def ent2(self, evt):
-        if len(self.txt_disp_ent2.GetValue()) > 0:
-            self.txt_result.SetLabel(str(self.txt_disp_ent2.GetValue()) + "*i\n")
-            datos = self.mensaje_serial(str(self.txt_disp_ent2.GetValue()) + "*i\n", 3)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en entrada 2")
-
-    def ent3(self, evt):
-        if len(self.txt_disp_ent3.GetValue()) > 0:
-            self.txt_result.SetLabel(str(self.txt_disp_ent3.GetValue()) + "*j\n")
-            datos = self.mensaje_serial(str(self.txt_disp_ent3.GetValue()) + "*j\n", 3)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en entrada 3")
-
-    def ent4(self, evt):
-        if len(self.txt_disp_ent4.GetValue()) > 0:
-            self.txt_result.SetLabel(str(self.txt_disp_ent4.GetValue()) + "*k\n")
-            datos = self.mensaje_serial(str(self.txt_disp_ent4.GetValue()) + "*k\n", 3)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("Fallo en telefono 3")
-
-    def numtelf(self, evt):
-        datos = self.mensaje_serial("*l\n", 0.5)
-        self.txt_result.SetLabel(datos + "\n")
-
-    def tiempo(self, evt):
-        if self.txt_tiempo.GetValue().isdigit():
-            datos = self.mensaje_serial(hex(int(self.txt_tiempo.GetValue())) + "*d\n", 1.3)
-            self.txt_result.SetLabel(datos)
-        else:
-            self.txt_result.SetLabel("No se pudo establecer el tempo \n ingrese numeros")
+            self.txt_result.SetValue(" PC >> Ingrese un numero Valido"+
+                                     "\n"+self.txt_result.GetValue() )
 
     def buscar_seriales(self, evt):
-        self.txt_result.SetValue(" PC >> Buscando Dispositivos por puerto serial"+"\n"+self.txt_result.GetValue() )
+        self.txt_result.SetValue(" PC >> Buscando Dispositivos por puerto serial"+
+                                 "\n"+self.txt_result.GetValue() )
         self.devs_list = [];
         self.lista_devs = []
         self.txt_result.SetValue(" | ")
