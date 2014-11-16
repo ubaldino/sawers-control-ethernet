@@ -6,12 +6,7 @@ __copyright__ = "...."
 
 from optparse import OptionParser
 from serial.tools import list_ports
-import wx, os, time, serial
-
-import threading
-import Queue
-
-import re
+import wx, os, time, serial , threading , re
 
 class Validate_Numeric(wx.PyValidator):
     def __init__(Self):
@@ -127,9 +122,11 @@ class Main(wx.Frame):
         #self.txt_ip.setFocus()
 
         self.select_device = wx.ComboBox(self.panel, pos=( 30, 150 ), size=( 95, -1), style=wx.CB_READONLY)
-        lista_devices = ["MAESTRO","ESCLAVO 1","ESCLAVO 2","ESCLAVO 3","ESCLAVO 4","ESCLAVO 5",
-                         "ESCLAVO 6","ESCLAVO 7","ESCLAVO 8","ESCLAVO 9","ESCLAVO 10"]
-        self.select_device.SetItems(lista_devices)
+        self.lista_devices = {0 : 'NINGUNO' , 29:'MAESTRO' }
+        for i in range(30):
+            self.lista_devices[i+30] = "ESCLAVO %s"%(i+1)
+        print self.lista_devices
+        self.select_device.SetItems( self.lista_devices.values() )
         self.select_device.SetSelection(0)
 
 
@@ -175,6 +172,7 @@ class Main(wx.Frame):
         self.btn_puerto.Bind(wx.EVT_BUTTON, self.evento_puerto )
 
         self.txt_out1.Bind(wx.EVT_TEXT, self.evento_out1_text )
+        self.select_device.Bind(wx.EVT_COMBOBOX , self.evento_select_device)
         #### End Eventos botones ######
 
         self.result_tamanio = ( 580, 200 )
@@ -183,7 +181,6 @@ class Main(wx.Frame):
         self.txt_result.SetBackgroundColour( wx.BLACK )
         self.txt_result.SetEditable(False)
         self.txt_result.SetForegroundColour( wx.RED )
-
         #self.txt_result.setLabel("\n\n\n\nsdasdasdsa")
 
         self.cb_devices = wx.ComboBox(self.panel, pos=( 131, 522 ), size=( 290, -1 ), style=wx.CB_READONLY)
@@ -194,6 +191,14 @@ class Main(wx.Frame):
         self.btn_ip.Disable()
         self.btn_puerto.Disable()
         self.btn_desconectar.Disable()
+        self.btn_out1.Disable()
+        self.btn_out2.Disable()
+        self.btn_out3.Disable()
+        self.btn_out4.Disable()
+        self.btn_out5.Disable()
+        self.btn_out6.Disable()
+        self.btn_verificar.Disable()
+        self.select_device.Disable()
 
 
     def serialWatcher(self):
@@ -201,7 +206,7 @@ class Main(wx.Frame):
             try:
                 if self.puerto_serial.inWaiting() and not self.puerto_serial.closed :
                     valor = str(self.puerto_serial.read(self.puerto_serial.inWaiting()).encode('utf-8'))
-                    self.txt_result.SetLabel( "Mic > "+valor+"\n"+self.txt_result.GetLabel() )
+                    self.txt_result.SetValue( " Mic >> "+valor+"\n"+self.txt_result.GetValue() )
             except:
                 continue
             #self.puerto_serial.flushInput()
@@ -209,24 +214,40 @@ class Main(wx.Frame):
 
     def evento_ip(self, evt):
         if self.txt_ip.GetBackgroundColour() == (255, 255, 255, 255):
-            trama = chr(2)
+            trama = chr(2)+chr(108)
             for dato in self.txt_ip.GetValue():
                 trama = trama + chr( ord(dato) )
             trama = trama+chr(3)
             self.mensaje_serial( trama )
         else:
-            self.txt_result.SetLabel("Ingrese una ip valida")
+            self.txt_result.SetValue(" PC >> Ingrese una ip valida"+"\n"+self.txt_result.GetValue() )
 
     def evento_puerto(self, evt):
         if self.txt_puerto.GetBackgroundColour() == (255, 255, 255, 255):
-            trama = chr(2)
+            trama = chr(2)+chr(109)
             for dato in self.txt_puerto.GetValue():
                 trama = trama + chr( ord(dato) )
             trama = trama+chr(3)
             self.mensaje_serial( trama )
             print trama
         else:
-            self.txt_result.SetLabel("Ingrese un puerto valido")
+            self.txt_result.SetValue(" PC >> Ingrese un puerto valido"+"\n"+self.txt_result.GetValue() )
+
+    def evento_select_device(self, evt):
+        dispositivo = self.lista_devices.keys()[ int(self.select_device.GetSelection()) ]
+        if int(self.select_device.GetSelection()) == 0:
+            self.btn_ip.Enable()
+            self.btn_puerto.Enable()
+            self.txt_ip.Enable()
+            self.txt_puerto.Enable()
+        else:
+            trama = chr(2)+chr(103)+str(dispositivo)+chr(3)
+            self.mensaje_serial( trama )
+            self.txt_ip.Disable()
+            self.txt_puerto.Disable()
+            self.btn_ip.Disable()
+            self.btn_puerto.Disable()
+        self.txt_result.SetValue(" PC >> "+str( dispositivo )+" elegido "+"\n"+self.txt_result.GetValue() )
 
     def evento_out1_text(self, evt):
         hexas = ''
@@ -310,10 +331,10 @@ class Main(wx.Frame):
             self.txt_result.SetLabel("No se pudo establecer el tempo \n ingrese numeros")
 
     def buscar_seriales(self, evt):
-        self.txt_result.SetLabel("Buscando Dispositivos por puerto serial")
+        self.txt_result.SetValue(" PC >> Buscando Dispositivos por puerto serial"+"\n"+self.txt_result.GetValue() )
         self.devs_list = [];
         self.lista_devs = []
-        self.txt_result.SetLabel(" | ")
+        self.txt_result.SetValue(" | ")
         lista_disp = list(list_ports.comports())
         for index in range(len(lista_disp)):
             if lista_disp[index][2] != "n/a" and "Bluetooth" not in lista_disp[index][1]:
@@ -333,12 +354,21 @@ class Main(wx.Frame):
 
     def conectar_dispositivo(self, evt):
         self.puerto_serial = serial.Serial(str(self.devs_list[self.cb_devices.GetSelection()]), 19200)
-        self.txt_result.SetLabel("conectado a %s" % str(self.devs_list[self.cb_devices.GetSelection()]))
+        self.txt_result.SetValue(" Conectado a %s" % str(self.devs_list[self.cb_devices.GetSelection()]))
+        self.mensaje_serial("*******")
         self.txt_result.SetSize(self.result_tamanio)
         self.item = self.cb_devices.GetSelection()
         self.btn_conectar.Disable()
         self.btn_ip.Enable()
         self.btn_puerto.Enable()
+        self.btn_out1.Enable()
+        self.btn_out2.Enable()
+        self.btn_out3.Enable()
+        self.btn_out4.Enable()
+        self.btn_out5.Enable()
+        self.btn_out6.Enable()
+        self.btn_verificar.Enable()
+        self.select_device.Enable()
         self.btn_desconectar.Enable()
         self._thread = threading.Thread(target=self.serialWatcher, args=())
         self._thread.setDaemon(True)
@@ -353,17 +383,25 @@ class Main(wx.Frame):
         self.puerto_serial.close()
         #de : " + str(self.lista_devs[]
         print self.item
-        self.txt_result.SetLabel("Desconectado" )
+        self.txt_result.SetValue(" Desconectado" )
         self.txt_result.SetSize(self.result_tamanio)
         self.btn_conectar.Enable()
         self.btn_ip.Disable()
         self.btn_puerto.Disable()
+        self.btn_out1.Disable()
+        self.btn_out2.Disable()
+        self.btn_out3.Disable()
+        self.btn_out4.Disable()
+        self.btn_out5.Disable()
+        self.btn_out6.Disable()
+        self.btn_verificar.Disable()
+        self.select_device.Disable()
         self.btn_desconectar.Disable()
 
     def mensaje_serial(self, mensaje ):
         #self.puerto_serial.flushInput()
         self.puerto_serial.write(mensaje )
-        self.txt_result.SetLabel( "PC >> "+str( mensaje ) )
+        self.txt_result.SetValue( " PC >> "+str( mensaje[1:-1] )+"\n"+self.txt_result.GetValue() )
 
 def main():
     app = wx.App(None)
