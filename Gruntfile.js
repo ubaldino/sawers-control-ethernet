@@ -1,6 +1,5 @@
 module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
-    require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
         watch: {
@@ -8,7 +7,7 @@ module.exports = function(grunt) {
                 livereload: true,
             },
             shell: {
-                files:  [ '**','Control/*' ],
+                files:  ['Control/main.py' ],
                 tasks:  [ 'shell:target' ],
                 options: {
                     spawn: false
