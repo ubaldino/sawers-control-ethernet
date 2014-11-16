@@ -1,10 +1,9 @@
 #!/usr/bin/python2
-
 # -*- coding: utf-8 -*-
-__author__ = 'ubaldino'
-__copyright__ = "...."
 
-from optparse import OptionParser
+__author__ = 'ubaldino Zurita'
+__copyright__ = "None"
+
 from serial.tools import list_ports
 import wx, os, time, serial , threading , re
 
@@ -18,8 +17,7 @@ class Validate_Numeric(wx.PyValidator):
 
     def On_Text_Change(Self, Event):
         TextCtrl = Self.GetWindow()
-        Text = TextCtrl.GetValue()
-        if Text.isdigit():
+        if TextCtrl.GetValue().Text.isdigit():
             TextCtrl.SetBackgroundColour("White")
             TextCtrl.Refresh()
         else:
@@ -70,11 +68,9 @@ class Validate_Numeric_Dot(wx.PyValidator):
         Text = TextCtrl.GetValue()
         if a.match(Text):
             TextCtrl.SetBackgroundColour( wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW) )
-            TextCtrl.SetFocus()
             TextCtrl.Refresh()
         else:
             TextCtrl.SetBackgroundColour("Red")
-            TextCtrl.SetFocus()
             TextCtrl.Refresh()
         Event.Skip()
 
@@ -122,7 +118,7 @@ class Validate_Numeric_Outs(wx.PyValidator):
 class Main(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self, None, -1, 'Sawers 1.0', size=( 650, 600 ))
-        self.icon = wx.Icon(os.path.join(os.getcwd(), "resources", "sawers.ico"), wx.BITMAP_TYPE_ICO)
+        self.icon = wx.Icon(os.path.join(os.getcwd(), "Control","resources", "sawers.ico"), wx.BITMAP_TYPE_ICO)
         #"Control",
         self.SetIcon(self.icon)
         self.panel = wx.Panel(self, -1)
@@ -152,7 +148,6 @@ class Main(wx.Frame):
         self.lista_devices = {0 : 'NINGUNO' , 29:'MAESTRO' }
         for i in range(30):
             self.lista_devices[i+30] = "ESCLAVO %s"%(i+1)
-        print self.lista_devices
         self.select_device.SetItems( self.lista_devices.values() )
         self.select_device.SetSelection(0)
 
@@ -275,7 +270,6 @@ class Main(wx.Frame):
                 trama = trama + chr( ord(dato) )
             trama = trama+chr(3)
             self.mensaje_serial( trama )
-            print trama
         else:
             self.txt_result.SetValue(" PC >> Ingrese un puerto valido"+"\n"+self.txt_result.GetValue() )
 
@@ -382,7 +376,6 @@ class Main(wx.Frame):
                 self.lista_devs.append(lista_disp[index][1])
                 self.txt_result.SetLabel(self.txt_result.GetLabel() + lista_disp[index][0] + " | ")
                 self.txt_result.SetSize( self.result_tamanio )
-        print lista_disp
         self.cb_devices.SetItems(self.lista_devs)
         self.cb_devices.SetSelection(0)
         self.cb_devices.SetFocus()
@@ -390,7 +383,6 @@ class Main(wx.Frame):
 
     def OnSelect(self, event):
         self.item = self.cb_devices.GetSelection()
-        print self.item
 
     def conectar_dispositivo(self, evt):
         self.puerto_serial = serial.Serial(str(self.devs_list[self.cb_devices.GetSelection()]), 19200)
@@ -415,14 +407,13 @@ class Main(wx.Frame):
         self._thread.start()
 
     def verificar_dispositivo(self, evt):
-        datos = self.mensaje_serial("H\n", 0.3)
-        self.txt_result.SetLabel("\n" + datos + "\n")
+        datos = self.mensaje_serial( chr(2)+chr(104)+chr(3) )
+        self.txt_result.SetValue(" PC >> "+chr(104)+"\n"+self.txt_result.GetValue())
         self.txt_result.SetSize(self.result_tamanio)
 
     def desconectar_dispositivo(self, evt):
         self.puerto_serial.close()
         #de : " + str(self.lista_devs[]
-        print self.item
         self.txt_result.SetValue(" Desconectado" )
         self.txt_result.SetSize(self.result_tamanio)
         self.btn_conectar.Enable()
@@ -449,7 +440,6 @@ def main():
     frame.Show()
     frame.buscar_seriales(None)
     app.MainLoop()
-
 
 if __name__ == '__main__':
     main()
